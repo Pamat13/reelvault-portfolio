@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Home",
+    "projects": "Projects",
+    "blog": "Blog",
+    "about": "About"
+  },
+  "hero": {
+    "greeting": "Hi, I'm Jorge",
+    "tagline": "Math grad · Data & ML engineer · Building local-first AI tools"
+  },
+  "footer": {
+    "rights": "All rights reserved."
+  }
+}

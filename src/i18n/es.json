@@ -1,0 +1,15 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "projects": "Proyectos",
+    "blog": "Blog",
+    "about": "Sobre mí"
+  },
+  "hero": {
+    "greeting": "Hola, soy Jorge",
+    "tagline": "Matemático · Ingeniero de datos & ML · Herramientas de IA local"
+  },
+  "footer": {
+    "rights": "Todos los derechos reservados."
+  }
+}
