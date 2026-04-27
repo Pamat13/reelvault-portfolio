@@ -16,8 +16,11 @@ export function t(locale: Locale, key: string): string {
   return typeof value === "string" ? value : key;
 }
 
+const supportedLocales = Object.keys(translations) as Locale[];
+
 export function getLocaleFromUrl(url: URL): Locale {
   const [, first] = url.pathname.split("/");
-  if (first === "es") return "es";
-  return "en";
+  return supportedLocales.includes(first as Locale)
+    ? (first as Locale)
+    : defaultLocale;
 }
