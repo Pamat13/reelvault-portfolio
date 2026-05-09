@@ -1,5 +1,5 @@
 export const SITE = {
-  website: "https://example.com", // TODO: replace with deployed domain
+  website: "https://proyecto-info-instagram-portfolio.vercel.app",
   author: "Jorge Pérez Amat",
   profile: "https://github.com/Pamat13",
   desc: "Math grad, data + ML. Building local-first AI tools.",
