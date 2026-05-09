@@ -1,0 +1,187 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Header from "@/components/Header.astro";
+import Footer from "@/components/Footer.astro";
+---
+
+<Layout
+  title="ReelVault — Case Study"
+  description="How I built a local LLM pipeline to make 2,695 saved Instagram reels searchable using faster-whisper, Gemma 4, and BGE-M3."
+>
+  <Header />
+  <main id="main-content" class="app-layout">
+
+    <!-- 1. Hero -->
+    <section id="hero" class="pt-10 pb-8 border-b border-border">
+      <h1 class="my-2 text-4xl font-bold sm:text-5xl">ReelVault</h1>
+      <p class="mt-2 text-lg text-muted-foreground">
+        A local LLM pipeline that makes 2,695 saved Instagram reels fully searchable — offline, on your own GPU.
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a
+          href="https://github.com/Pamat13"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex items-center gap-2 rounded border border-border px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
+        >
+          GitHub
+        </a>
+        <a
+          href="#"
+          class="inline-flex items-center gap-2 rounded border border-border px-4 py-2 text-sm font-medium opacity-50 cursor-not-allowed"
+          title="Live demo coming soon"
+        >
+          Live Demo (soon)
+        </a>
+      </div>
+    </section>
+
+    <!-- 2. Problem -->
+    <section id="problem" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">The Problem</h2>
+      <p class="mb-4 leading-relaxed">
+        Over the years I saved 2,695 Instagram reels — tutorials, recipes, travel clips, design inspiration. Instagram gives you no search, no tags, no way to find what you saved three months ago. The only interface is an endless vertical scroll.
+      </p>
+      <p class="leading-relaxed">
+        I wanted full-text search over the spoken words, visual content, and topics of every reel I had ever saved. The solution had to run entirely locally: no cloud APIs, no recurring costs, no data leaving my machine.
+      </p>
+    </section>
+
+    <!-- 3. Solution -->
+    <section id="solution" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">Solution</h2>
+      <p class="mb-4 leading-relaxed">A resumable, GPU-accelerated pipeline with seven stages:</p>
+      <ul class="list-disc list-inside space-y-2 leading-relaxed">
+        <li><strong>Ingest</strong> — parse the Instagram export ZIP, create a SQLite jobs table with one row per reel URL</li>
+        <li><strong>Download</strong> — fetch each reel via yt-dlp with Netscape cookies, storing the MP4 locally</li>
+        <li><strong>Thumbnail</strong> — extract 4 representative frames with ffmpeg for visual context</li>
+        <li><strong>Transcribe</strong> — run faster-whisper (medium model) on the audio track; retry without VAD on silent or music-only reels</li>
+        <li><strong>Vision</strong> — send frames + transcript to Gemma 4 E4B-IT (Q4, bitsandbytes) on the GPU to generate title, summary, tags, and a language field</li>
+        <li><strong>Classify</strong> — high-confidence results go straight to embedding; low-confidence ones enter a FastAPI + Svelte 5 review UI</li>
+        <li><strong>Embed</strong> — BGE-M3 produces dense vectors stored alongside SQLite FTS5 full-text index; MiniLM-L12-v2 provides a lightweight re-ranker</li>
+      </ul>
+    </section>
+
+    <!-- 4. Architecture -->
+    <section id="architecture" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">Architecture</h2>
+      <div class="overflow-x-auto rounded border border-border p-4 bg-muted/30">
+        <div class="mermaid">
+flowchart LR
+    A[Instagram export.zip] --> B[ingest]
+    B --> C[(jobs.db)]
+    C --> D[download]
+    D --> E[thumbnail\nffmpeg]
+    E --> F[transcribe\nWhisper]
+    F --> G[vision\nGemma 4 E4B\nGPU]
+    G --> H[classify]
+    H -->|high conf| K[embed\nBGE-M3\nGPU]
+    H -->|low conf| I[awaiting_review]
+    I -->|FastAPI + Svelte| J[review UI]
+    J --> K
+    K --> L[(index.db\nFTS5 + vectors)]
+    K --> M[Markdown vault]
+        </div>
+      </div>
+      <script is:inline src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+      <script is:inline>mermaid.initialize({ startOnLoad: true, theme: 'neutral' });</script>
+    </section>
+
+    <!-- 5. Results -->
+    <section id="results" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-6">Results</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="rounded border border-border p-6 text-center">
+          <div class="text-4xl font-bold text-accent mb-2">2,491</div>
+          <div class="text-sm text-muted-foreground">Reels fully processed and indexed</div>
+        </div>
+        <div class="rounded border border-border p-6 text-center">
+          <div class="text-4xl font-bold text-accent mb-2">~92%</div>
+          <div class="text-sm text-muted-foreground">Auto-classified at high confidence — no human review needed</div>
+        </div>
+        <div class="rounded border border-border p-6 text-center">
+          <div class="text-4xl font-bold text-accent mb-2">5 days</div>
+          <div class="text-sm text-muted-foreground">Total pipeline runtime on RTX 5070 Laptop (8 GB VRAM)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Demo -->
+    <section id="demo" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">Demo</h2>
+      <div class="rounded border border-border bg-muted/30 flex items-center justify-center h-48 text-muted-foreground text-sm">
+        YouTube walkthrough — coming soon
+      </div>
+    </section>
+
+    <!-- 7. Tech Stack -->
+    <section id="tech" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">Tech Stack</h2>
+      <div class="flex flex-wrap gap-2">
+        <img src="https://img.shields.io/badge/Python-3.12-blue?logo=python&logoColor=white" alt="Python 3.12" />
+        <img src="https://img.shields.io/badge/PyTorch-2.11-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch 2.11" />
+        <img src="https://img.shields.io/badge/Transformers-5.x-yellow?logo=huggingface&logoColor=black" alt="Transformers 5.x" />
+        <img src="https://img.shields.io/badge/faster--whisper-medium-green" alt="faster-whisper" />
+        <img src="https://img.shields.io/badge/Gemma_4-E4B--IT_Q4-purple" alt="Gemma 4 E4B-IT Q4" />
+        <img src="https://img.shields.io/badge/FastAPI-0.11x-009688?logo=fastapi&logoColor=white" alt="FastAPI" />
+        <img src="https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white" alt="Svelte 5" />
+        <img src="https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white" alt="SQLite FTS5" />
+      </div>
+    </section>
+
+    <!-- 8. Hard Parts -->
+    <section id="hard-parts" class="pt-10 pb-8 border-b border-border">
+      <h2 class="text-2xl font-semibold tracking-wide mb-6">The Hard Parts</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="rounded border border-border p-5">
+          <h3 class="font-semibold mb-2">torchcodec → ffmpeg</h3>
+          <p class="text-sm leading-relaxed text-muted-foreground">
+            torchcodec failed on Windows with missing DLLs. Rewrote frame extraction as an ffmpeg subprocess call that produces 4 PIL Images — faster and dependency-free.
+          </p>
+        </div>
+        <div class="rounded border border-border p-5">
+          <h3 class="font-semibold mb-2">Gemma 4 OOM</h3>
+          <p class="text-sm leading-relaxed text-muted-foreground">
+            <code class="text-xs">device_map="auto"</code> split the model across CPU + GPU layers. bitsandbytes Q4 quantization cannot run on CPU layers, causing an immediate OOM crash. Fixed by forcing <code class="text-xs">device_map="cuda:0"</code> with <code class="text-xs">torch_dtype=float16</code>.
+          </p>
+        </div>
+        <div class="rounded border border-border p-5">
+          <h3 class="font-semibold mb-2">Instagram Rate-Limiting</h3>
+          <p class="text-sm leading-relaxed text-muted-foreground">
+            Bulk downloads were blocked after ~420 reels. Cookies-from-browser extraction failed because Chrome's SQLite DB was locked. Switched to a Netscape <code class="text-xs">cookies.txt</code> exported via a browser extension, which bypassed the lock entirely.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. Links -->
+    <section id="links" class="pt-10 pb-12">
+      <h2 class="text-2xl font-semibold tracking-wide mb-4">Links</h2>
+      <ul class="space-y-2 text-sm">
+        <li>
+          <a
+            href="https://github.com/Pamat13"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="underline decoration-dashed underline-offset-4 hover:text-accent"
+          >
+            GitHub — github.com/Pamat13
+          </a>
+        </li>
+        <li>
+          <a
+            href="/posts/"
+            class="underline decoration-dashed underline-offset-4 hover:text-accent"
+          >
+            Blog — build log posts
+          </a>
+        </li>
+        <li>
+          <span class="opacity-50">Live demo — coming soon</span>
+        </li>
+      </ul>
+    </section>
+
+  </main>
+  <Footer />
+</Layout>
