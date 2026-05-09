@@ -13,6 +13,8 @@ tags:
 description: "Whisper + Gemma 4 + BGE-M3 on a laptop GPU. Why local-first matters, and the three blockers I had to debug through."
 ---
 
+## TL;DR
+
 - Built a 6-stage local LLM pipeline (Whisper + Gemma 4 + BGE-M3) to classify 2,695 Instagram reels — no cloud APIs
 - Hit 3 hard bugs: Windows DLL hell, Q4 GPU OOM, Instagram rate-limiting — solved each with a targeted fix
 - 2,491 reels indexed, ~92% auto-classified; the vault now has full keyword + semantic search
@@ -178,7 +180,7 @@ After ~5 days of pipeline runtime on an RTX 5070 Laptop (8GB VRAM), resuming acr
 - **2,491 reels indexed** out of 2,695 attempted
 - **~92% auto-classified** with high confidence — no human review needed
 - **~8% manually triaged** via the FastAPI + Svelte review UI, where Gemma's confidence score fell below threshold (blurry content, unusual language, music-only reels)
-- **~7.4% discarded** — deleted reels (404 from Instagram), private account content that became inaccessible, and reels with silent audio that faster-whisper returned empty transcripts for
+- **~7.4% discarded** — deleted reels (404 from Instagram), private account content that became inaccessible, and reels with silent audio where faster-whisper returned empty transcripts
 
 The vault now supports three query modes:
 - Full-text search over transcripts and summaries (FTS5)
@@ -191,10 +193,10 @@ A reel I bookmarked 18 months ago about a specific climbing hold technique: foun
 
 **Local LLM pipelines on consumer hardware are viable — but the surface area for platform-specific bugs is large.** Windows DLL issues, CUDA kernel limitations, and browser lock files are all problems you don't hit in a cloud notebook. Budget debugging time accordingly.
 
-**SQLite is remarkably capable as an ML infrastructure layer.** FTS5 full-text search, vector similarity via sqlite-vec, and job tracking in the same database file that fits on a USB drive. The complexity ceiling for a personal project is lower than I expected.
+**SQLite is remarkably capable as an ML infrastructure layer.** FTS5 full-text search, vector similarity via sqlite-vec, and job tracking in the same database file that fits on a USB drive. SQLite's capabilities at personal-project scale exceeded my expectations.
 
 **Confidence scores are worth the extra inference cost.** Having Gemma return a 0–1 confidence alongside each classification made the human review step tractable — I only had to look at ~200 reels instead of spot-checking all 2,491. A binary pass/fail from the model would have been much less useful.
 
 **The boring infrastructure matters more than the models.** Resumability, per-reel state tracking, and graceful retry logic are what made a 5-day pipeline actually finish. The models are the interesting part on paper; the job queue is the part that made it work in practice.
 
-The full project, including the pipeline source and the review UI, lives at [proyecto-info-instagram-portfolio.vercel.app/projects/reelvault](https://proyecto-info-instagram-portfolio.vercel.app/projects/reelvault).
+Full case study — architecture diagram, tech stack, and links — at [proyecto-info-instagram-portfolio.vercel.app/projects/reelvault](https://proyecto-info-instagram-portfolio.vercel.app/projects/reelvault).
